@@ -2,9 +2,9 @@ import type { FuelLog, Car } from "@/lib/types"
 import { createClient } from "@/lib/supabase/server"
 
 interface EmailExportData {
-  userEmail: string
-  cars: Car[]
-  fuelLogs: FuelLog[]
+    userEmail: string
+    cars: Car[]
+    fuelLogs: FuelLog[]
 }
 
 /**
@@ -12,64 +12,64 @@ interface EmailExportData {
  * Used for email exports and SARS compliance documentation
  */
 export async function generateFuelLogsCsv(fuelLogs: FuelLog[], cars: Map<string, Car>): Promise<string> {
-  const headers = [
-    "Date",
-    "Vehicle",
-    "Registration",
-    "Odometer (km)",
-    "Fuel Added (L)",
-    "Price Per Liter (R)",
-    "Total Cost (R)",
-    "Petrol Station",
-    "Efficiency (km/L)",
-    "Distance Traveled (km)",
-    "Work Travel (Y/N)",
-    "Work Distance (km)",
-    "Receipt Attached",
-    "Notes",
-  ]
+    const headers = [
+        "Date",
+        "Vehicle",
+        "Registration",
+        "Odometer (km)",
+        "Fuel Added (L)",
+        "Price Per Liter (R)",
+        "Total Cost (R)",
+        "Petrol Station",
+        "Efficiency (km/L)",
+        "Distance Traveled (km)",
+        "Work Travel (Y/N)",
+        "Work Distance (km)",
+        "Receipt Attached",
+        "Notes",
+    ]
 
-  const rows = fuelLogs.map((log) => {
-    const car = cars.get(log.car_id)
-    return [
-      new Date(log.date).toLocaleDateString("en-ZA"),
-      car ? `${car.make} ${car.model}` : "Unknown",
-      car?.registration_number || "",
-      log.odometer_reading.toFixed(2),
-      log.liters.toFixed(2),
-      log.price_per_liter.toFixed(2),
-      log.total_cost.toFixed(2),
-      log.petrol_station || "",
-      log.km_per_liter?.toFixed(2) || "",
-      log.distance_traveled?.toFixed(2) || "",
-      log.is_work_travel ? "Yes" : "No",
-      log.work_distance?.toFixed(2) || "0",
-      log.receipt_url ? "Yes" : "No",
-      log.notes || "",
-    ].map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-  })
+    const rows = fuelLogs.map((log) => {
+        const car = cars.get(log.car_id)
+        return [
+            new Date(log.date).toLocaleDateString("en-ZA"),
+            car ? `${car.make} ${car.model}` : "Unknown",
+            car?.registration_number || "",
+            log.odometer_reading.toFixed(2),
+            log.liters.toFixed(2),
+            log.price_per_liter.toFixed(2),
+            log.total_cost.toFixed(2),
+            log.petrol_station || "",
+            log.km_per_liter?.toFixed(2) || "",
+            log.distance_traveled?.toFixed(2) || "",
+            log.is_work_travel ? "Yes" : "No",
+            log.work_distance?.toFixed(2) || "0",
+            log.receipt_url ? "Yes" : "No",
+            log.notes || "",
+        ].map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+    })
 
-  return [headers.map((h) => `"${h}"`).join(","), ...rows.map((r) => r.join(","))].join("\n")
+    return [headers.map((h) => `"${h}"`).join(","), ...rows.map((r) => r.join(","))].join("\n")
 }
 
 /**
  * Generate HTML email content for fuel logs report
  */
 export function generateFuelLogsHtml(
-  userEmail: string,
-  cars: Car[],
-  fuelLogs: FuelLog[],
-  stats: {
-    totalCost: number
-    totalLiters: number
-    totalWorkDistance: number
-    averageKmPerLiter: number
-    vehicleCount: number
-  },
+    userEmail: string,
+    cars: Car[],
+    fuelLogs: FuelLog[],
+    stats: {
+        totalCost: number
+        totalLiters: number
+        totalWorkDistance: number
+        averageKmPerLiter: number
+        vehicleCount: number
+    },
 ): string {
-  const carsMap = new Map(cars.map((car) => [car.id, car]))
+    const carsMap = new Map(cars.map((car) => [car.id, car]))
 
-  const html = `
+    const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -135,16 +135,16 @@ export function generateFuelLogsHtml(
           </thead>
           <tbody>
             ${cars
-              .map(
-                (car) => `
+        .map(
+            (car) => `
               <tr>
                 <td>${car.make} ${car.model}</td>
                 <td>${car.registration_number}</td>
                 <td>${car.year}</td>
               </tr>
             `,
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
 
@@ -163,10 +163,10 @@ export function generateFuelLogsHtml(
           </thead>
           <tbody>
             ${fuelLogs
-              .map((log) => {
-                const car = carsMap.get(log.car_id)
-                const rowClass = log.is_work_travel ? "work-travel" : ""
-                return `
+        .map((log) => {
+            const car = carsMap.get(log.car_id)
+            const rowClass = log.is_work_travel ? "work-travel" : ""
+            return `
               <tr class="${rowClass}">
                 <td>${new Date(log.date).toLocaleDateString("en-ZA")}</td>
                 <td>${car ? `${car.make} ${car.model}` : "Unknown"}</td>
@@ -180,8 +180,8 @@ export function generateFuelLogsHtml(
                 </td>
               </tr>
             `
-              })
-              .join("")}
+        })
+        .join("")}
           </tbody>
         </table>
 
@@ -194,74 +194,74 @@ export function generateFuelLogsHtml(
     </html>
   `
 
-  return html
+    return html
 }
 
 /**
  * Send fuel logbook report via email
  */
 export async function sendFuelLogEmail(
-  userEmail: string,
-  cars: Car[],
-  fuelLogs: FuelLog[],
+    userEmail: string,
+    cars: Car[],
+    fuelLogs: FuelLog[],
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const supabase = await createClient()
+    try {
+        const supabase = await createClient()
 
-    // Calculate statistics
-    const totalCost = fuelLogs.reduce((sum, log) => sum + Number(log.total_cost), 0)
-    const totalLiters = fuelLogs.reduce((sum, log) => sum + Number(log.liters), 0)
-    const totalWorkDistance = fuelLogs.reduce((sum, log) => sum + Number(log.work_distance || 0), 0)
-    const averageKmPerLiter =
-      fuelLogs.length > 0
-        ? fuelLogs.reduce((sum, log) => sum + (Number(log.km_per_liter) || 0), 0) /
-          fuelLogs.filter((log) => log.km_per_liter).length
-        : 0
+        // Calculate statistics
+        const totalCost = fuelLogs.reduce((sum, log) => sum + Number(log.total_cost), 0)
+        const totalLiters = fuelLogs.reduce((sum, log) => sum + Number(log.liters), 0)
+        const totalWorkDistance = fuelLogs.reduce((sum, log) => sum + Number(log.work_distance || 0), 0)
+        const logsWithEfficiency = fuelLogs.filter((log) => log.km_per_liter)
+        const averageKmPerLiter =
+            logsWithEfficiency.length > 0
+                ? logsWithEfficiency.reduce((sum, log) => sum + Number(log.km_per_liter), 0) / logsWithEfficiency.length
+                : 0
 
-    const stats = {
-      totalCost,
-      totalLiters,
-      totalWorkDistance,
-      averageKmPerLiter,
-      vehicleCount: cars.length,
+        const stats = {
+            totalCost,
+            totalLiters,
+            totalWorkDistance,
+            averageKmPerLiter,
+            vehicleCount: cars.length,
+        }
+
+        // Generate CSV and HTML content
+        const carsMap = new Map(cars.map((car) => [car.id, car]))
+        const csvContent = await generateFuelLogsCsv(fuelLogs, carsMap)
+        const htmlContent = generateFuelLogsHtml(userEmail, cars, fuelLogs, stats)
+
+        // Use Supabase email function to send via SMTP
+        // Note: This uses the custom SMTP configured in Supabase project settings
+        const response = await fetch("https://api.supabase.com/v1/auth/admin/email/send", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: userEmail,
+                subject: `Fuel Logbook Report - ${new Date().toLocaleDateString("en-ZA")}`,
+                html: htmlContent,
+            }),
+        })
+
+        if (!response.ok) {
+            // Fallback: If Supabase email fails, return error
+            const error = await response.json()
+            console.error("[v0] Supabase email error:", error)
+            return {
+                success: false,
+                error: "Failed to send email via Supabase SMTP",
+            }
+        }
+
+        return { success: true }
+    } catch (error) {
+        console.error("[v0] Email send error:", error)
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to send email",
+        }
     }
-
-    // Generate CSV and HTML content
-    const carsMap = new Map(cars.map((car) => [car.id, car]))
-    const csvContent = await generateFuelLogsCsv(fuelLogs, carsMap)
-    const htmlContent = generateFuelLogsHtml(userEmail, cars, fuelLogs, stats)
-
-    // Use Supabase email function to send via SMTP
-    // Note: This uses the custom SMTP configured in Supabase project settings
-    const response = await fetch("https://api.supabase.com/v1/auth/admin/email/send", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: userEmail,
-        subject: `Fuel Logbook Report - ${new Date().toLocaleDateString("en-ZA")}`,
-        html: htmlContent,
-      }),
-    })
-
-    if (!response.ok) {
-      // Fallback: If Supabase email fails, return error
-      const error = await response.json()
-      console.error("Supabase email error:", error)
-      return {
-        success: false,
-        error: "Failed to send email via Supabase SMTP",
-      }
-    }
-
-    return { success: true }
-  } catch (error) {
-    console.error("Email send error:", error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to send email",
-    }
-  }
 }
