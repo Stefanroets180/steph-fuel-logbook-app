@@ -1,0 +1,150 @@
+# How to Export Your Fuel Logbook as PDF
+
+## Option 1: Browser Print to PDF (Recommended - Works Everywhere)
+
+### Steps:
+
+1. **Go to Dashboard**
+   - Click your vehicle to view fuel logs
+   - Or click "Email All Logs" on main dashboard
+
+2. **Click "Download Logbook" Button**
+   - Located next to "Email Logbook" button
+   - File will download as `fuel-logbook-YYYY-MM-DD.html`
+
+3. **Open the HTML File**
+   - Find the downloaded file on your computer
+   - Open with your default browser (Chrome, Firefox, Safari, Edge)
+   - The file opens in a formatted report style
+
+4. **Print to PDF**
+   - Press **Ctrl+P** (Windows) or **Cmd+P** (Mac)
+   - In the printer dropdown, select "Save as PDF"
+   - Choose location on your computer
+   - Click **Save**
+
+5. **Done!**
+   - PDF saved with all your fuel logs, statistics, and SARS compliance information
+
+---
+
+## Option 2: Online Converter (No Software Needed)
+
+### Steps:
+
+1. **Download the HTML file** (as in Option 1, steps 1-2)
+
+2. **Visit CloudConvert**
+   - Go to https://cloudconvert.com/html-to-pdf
+
+3. **Upload File**
+   - Drag and drop your HTML file into the converter
+   - Or click "Select File" to browse
+
+4. **Convert**
+   - Click the **Convert** button
+   - Wait for conversion to complete
+
+5. **Download PDF**
+   - Click **Download** to save the PDF
+
+---
+
+## Option 3: Command Line (For Technical Users)
+
+### Using wkhtmltopdf (Linux/Mac/Windows):
+
+\`\`\`bash
+# Install wkhtmltopdf
+# macOS:
+brew install wkhtmltopdf
+
+# Ubuntu/Debian:
+sudo apt-get install wkhtmltopdf
+
+# Windows: Download from https://wkhtmltopdf.org/downloads.html
+
+# Convert HTML to PDF:
+wkhtmltopdf ~/Downloads/fuel-logbook-2024-01-15.html ~/Documents/fuel-logbook-2024-01-15.pdf
+\`\`\`
+
+### Using Puppeteer (Node.js):
+
+\`\`\`bash
+# Install Puppeteer
+npm install puppeteer
+
+# Create a script file (convert.js):
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  const filePath = `file://${fs.realpathSync('./fuel-logbook.html')}`;
+  await page.goto(filePath);
+  await page.pdf({
+    path: 'fuel-logbook.pdf',
+    format: 'A4',
+    margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' }
+  });
+  await browser.close();
+})();
+
+# Run the script:
+node convert.js
+\`\`\`
+
+---
+
+## PDF Content Includes:
+
+✓ All fuel logs with dates and details
+✓ Total cost in South African Rand (ZAR)
+✓ Fuel efficiency (km/L) for each entry
+✓ Work travel distance (SARS compliance)
+✓ Petrol station information
+✓ Receipt status badges
+✓ Summary statistics
+✓ Vehicle information
+
+---
+
+## SARS Tax Compliance
+
+The PDF includes:
+- **Work Travel Distance**: Tracked separately for tax deduction purposes
+- **Receipt Status**: Shows which entries have receipt proof
+- **Detailed Cost Breakdown**: All fuel purchases documented
+- **Efficiency Metrics**: For vehicle maintenance tracking
+
+**Keep these PDFs for your records** for SARS tax audits.
+
+---
+
+## Troubleshooting PDF Export
+
+### PDF is Blank
+- Make sure you have fuel logs to export
+- Try refreshing the page first
+- Check browser console for errors
+
+### File Won't Open
+- Make sure file is not corrupted
+- Try opening with a different browser
+- Ensure Adobe Reader or PDF viewer is installed
+
+### Format Issues in Converted PDF
+- Some converters may not render perfectly
+- Use browser print-to-PDF for best results
+- The HTML is already optimized for printing
+
+---
+
+## Tips for Best Results
+
+1. **Use Print to PDF**: Most reliable and requires no extra software
+2. **Print in Color**: Includes status badges (blue for work travel, green for locked, purple for receipts)
+3. **Save to Cloud**: Use cloud storage (Google Drive, OneDrive) for backup
+4. **Keep Digital Copy**: Easier to search and email to accountant
+5. **Monthly Export**: Export at end of each month for SARS filing
