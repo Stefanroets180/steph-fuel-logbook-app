@@ -3,9 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { Car, Plus, Fuel, TrendingUp, DollarSign, Calendar } from "lucide-react"
+import { Car, Plus, Fuel, DollarSign, Calendar } from "lucide-react"
 import type { Car as CarType } from "@/lib/types"
-import { FuelEfficiencyChart } from "@/components/fuel-efficiency-chart"
 import { ExportLogsButton } from "@/components/export-logs-button"
 
 export default async function DashboardPage() {
@@ -45,11 +44,6 @@ export default async function DashboardPage() {
     const totalFuelLogs = allLogs?.length || 0
     const totalLiters = allLogs?.reduce((sum, log) => sum + Number(log.liters), 0) || 0
     const totalCost = allLogs?.reduce((sum, log) => sum + Number(log.total_cost), 0) || 0
-    const logsWithEfficiency = allLogs?.filter((log) => log.km_per_liter) || []
-    const avgKmPerLiter =
-        logsWithEfficiency && logsWithEfficiency.length > 0
-            ? logsWithEfficiency.reduce((sum, log) => sum + Number(log.km_per_liter), 0) / logsWithEfficiency.length
-            : 0
     const totalWorkDistance = allLogs?.reduce((sum, log) => sum + Number(log.work_distance || 0), 0) || 0
 
     // Get current month stats
@@ -69,7 +63,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Quick Stats */}
-            <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mb-8 grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium text-slate-600">Total Vehicles</CardTitle>
@@ -89,17 +83,6 @@ export default async function DashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">R {totalCost.toFixed(2)}</div>
                         <p className="text-xs text-slate-600">All time fuel costs</p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-600">Avg. Efficiency</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-slate-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{avgKmPerLiter.toFixed(2)} km/L</div>
-                        <p className="text-xs text-slate-600">Across all vehicles</p>
                     </CardContent>
                 </Card>
 
@@ -147,13 +130,6 @@ export default async function DashboardPage() {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Fuel Efficiency Chart */}
-            {allLogs && allLogs.length > 0 && (
-                <div className="mb-8">
-                    <FuelEfficiencyChart logs={allLogs} />
-                </div>
-            )}
 
             {/* Recent Activity */}
             <div className="mb-8">

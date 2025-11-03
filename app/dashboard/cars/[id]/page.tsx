@@ -7,6 +7,7 @@ import Link from "next/link"
 import { ArrowLeft, Plus, Fuel, TrendingUp, DollarSign, Calendar, Receipt } from "lucide-react"
 import type { FuelLog } from "@/lib/types"
 import { ExportLogsButton } from "@/components/export-logs-button"
+import { FuelEfficiencyChart } from "@/components/fuel-efficiency-chart"
 
 export default async function CarDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -40,7 +41,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
     const totalCost = fuelLogs?.reduce((sum, log) => sum + Number(log.total_cost), 0) || 0
     const logsWithEfficiency = fuelLogs?.filter((log) => log.km_per_liter) || []
     const avgKmPerLiter =
-        logsWithEfficiency && logsWithEfficiency.length > 0
+        logsWithEfficiency && logsWithEfficiency.length >= 2
             ? logsWithEfficiency.reduce((sum, log) => sum + Number(log.km_per_liter), 0) / logsWithEfficiency.length
             : 0
     const workDistance = fuelLogs?.reduce((sum, log) => sum + Number(log.work_distance || 0), 0) || 0
@@ -95,7 +96,17 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                         <TrendingUp className="h-4 w-4 text-slate-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{avgKmPerLiter.toFixed(2)} km/L</div>
+                        {avgKmPerLiter > 0 ? (
+                            <>
+                                <div className="text-2xl font-bold">{avgKmPerLiter.toFixed(2)} km/L</div>
+                                <p className="text-xs text-slate-600">Tank to tank average</p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-2xl font-bold text-slate-400">-</div>
+                                <p className="text-xs text-slate-600">Add 2+ fuel logs</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -125,6 +136,12 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                         </Button>
                     </div>
                 </div>
+
+                {fuelLogs && fuelLogs.length >= 2 && (
+                    <div className="mb-6">
+                        <FuelEfficiencyChart logs={fuelLogs} carId={id} />
+                    </div>
+                )}
 
                 {fuelLogs && fuelLogs.length > 0 ? (
                     <div className="space-y-4">
